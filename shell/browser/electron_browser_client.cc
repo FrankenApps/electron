@@ -755,7 +755,7 @@ void ElectronBrowserClient::SiteInstanceGotProcessAndSite(
 #if BUILDFLAG(ENABLE_ELECTRON_EXTENSIONS)
   auto* browser_context =
       static_cast<ElectronBrowserContext*>(site_instance->GetBrowserContext());
-  if (!browser_context->IsOffTheRecord()) {
+  //if (!browser_context->IsOffTheRecord()) {
     extensions::ExtensionRegistry* registry =
         extensions::ExtensionRegistry::Get(browser_context);
     const extensions::Extension* extension =
@@ -767,7 +767,7 @@ void ElectronBrowserClient::SiteInstanceGotProcessAndSite(
     extensions::ProcessMap::Get(browser_context)
         ->Insert(extension->id(),
                  site_instance->GetProcess()->GetDeprecatedID());
-  }
+  //}
 #endif  // BUILDFLAG(ENABLE_ELECTRON_EXTENSIONS)
 }
 
@@ -1210,19 +1210,22 @@ void ElectronBrowserClient::RegisterNonNetworkSubresourceURLLoaderFactories(
 
   const extensions::Extension* extension =
       web_observer->GetExtensionFromFrame(frame_host, false);
-  if (!extension)
-    return;
+  //if (!extension)
+  //  return;
 
   // Support for chrome:// scheme if appropriate.
-  if (extension->is_extension() &&
-      extensions::Manifest::IsComponentLocation(extension->location())) {
+  //if (extension->is_extension() &&
+  //    extensions::Manifest::IsComponentLocation(extension->location())) {
     // Components of chrome that are implemented as extensions or platform apps
     // are allowed to use chrome://resources/ and chrome://theme/ URLs.
-    factories->emplace(content::kChromeUIScheme,
-                       content::CreateWebUIURLLoaderFactory(
-                           frame_host, content::kChromeUIScheme,
-                           {content::kChromeUIResourcesHost}));
-  }
+  factories->emplace(content::kChromeUIScheme,
+                     content::CreateWebUIURLLoaderFactory(
+                         frame_host, content::kChromeUIScheme,
+                         {content::kChromeUIResourcesHost}));
+  //}
+
+  if (!extension)
+    return;
 
   // Extensions with the necessary permissions get access to file:// URLs that
   // gets approval from ChildProcessSecurityPolicy. Keep this logic in sync with

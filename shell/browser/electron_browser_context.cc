@@ -399,12 +399,12 @@ ElectronBrowserContext::ElectronBrowserContext(
   if (!in_memory_) {
     BrowserContextDependencyManager::GetInstance()
         ->CreateBrowserContextServices(this);
-
-    auto* extension_system = static_cast<extensions::ElectronExtensionSystem*>(
-        extensions::ExtensionSystem::Get(this));
-    extension_system->InitForRegularProfile(true /* extensions_enabled */);
-    extension_system->FinishInitialization();
   }
+
+  auto* extension_system = static_cast<extensions::ElectronExtensionSystem*>(
+      extensions::ExtensionSystem::Get(this));
+  extension_system->InitForRegularProfile(true /* extensions_enabled */);
+  extension_system->FinishInitialization();
 #endif
 
   // Subscribe to Network Service process gone notifications to reset the
@@ -437,12 +437,12 @@ void ElectronBrowserContext::InitPrefs() {
   prefs_factory.set_command_line_prefs(in_memory_pref_store());
 
 #if BUILDFLAG(ENABLE_ELECTRON_EXTENSIONS)
-  if (!in_memory_) {
+  //if (!in_memory_) {
     auto* ext_pref_store = new ExtensionPrefStore(
         ExtensionPrefValueMapFactory::GetForBrowserContext(this),
         IsOffTheRecord());
     prefs_factory.set_extension_prefs(ext_pref_store);
-  }
+  //}
 #endif
 
 #if BUILDFLAG(ENABLE_ELECTRON_EXTENSIONS) || \
@@ -465,8 +465,9 @@ void ElectronBrowserContext::InitPrefs() {
   PrefProxyConfigTrackerImpl::RegisterPrefs(registry.get());
   ElectronAccessibilityUIMessageHandler::RegisterPrefs(registry.get());
 #if BUILDFLAG(ENABLE_ELECTRON_EXTENSIONS)
-  if (!in_memory_)
-    extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
+  //if (!in_memory_)
+  //  extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
+  extensions::ExtensionPrefs::RegisterProfilePrefs(registry.get());
   extensions::PermissionsManager::RegisterProfilePrefs(registry.get());
 #endif
 
@@ -903,6 +904,13 @@ ElectronBrowserContext* ElectronBrowserContext::From(
   if (!context) {
     context.reset(new ElectronBrowserContext{std::cref(partition), in_memory,
                                              std::move(options)});
+#if BUILDFLAG(ENABLE_ELECTRON_EXTENSIONS)
+    // Non-persistent (in-memory) contexts redirect to the default context for
+    // shared extension services (e.g. ExtensionRegistry). Ensure the default
+    // context is initialized so component extensions are available there.
+    if (in_memory && !partition.empty())
+      GetDefaultBrowserContext();
+#endif
   }
   return context.get();
 }

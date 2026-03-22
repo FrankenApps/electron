@@ -81,8 +81,8 @@ void ElectronExtensionSystem::InitForRegularProfile(bool extensions_enabled) {
   extension_loader_ =
       std::make_unique<ElectronExtensionLoader>(browser_context_);
 
-  if (!browser_context_->IsOffTheRecord())
-    LoadComponentExtensions();
+  //if (!browser_context_->IsOffTheRecord())
+  LoadComponentExtensions();
 
   management_policy_ = std::make_unique<ManagementPolicy>();
 }
